@@ -4,6 +4,7 @@ import ac.kr.smu.lookie.socialworker.domain.File;
 import ac.kr.smu.lookie.socialworker.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,7 +63,11 @@ public class FileController {
     @PostMapping
     public ResponseEntity<?> postFile(List<MultipartFile> uploadFileList) {
         List<File> uploadFile = fileService.upload(uploadFileList);
-        return new ResponseEntity<>(uploadFile, HttpStatus.OK);
+        CollectionModel<File> body = CollectionModel.of(uploadFile);
+
+        body.add(linkTo(methodOn(FileController.class).postFile(uploadFileList)).withSelfRel());
+
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     @DeleteMapping("/{fileId}")
