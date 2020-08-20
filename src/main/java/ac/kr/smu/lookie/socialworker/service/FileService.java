@@ -11,4 +11,8 @@ public interface FileService {
     public List<File> upload(List<MultipartFile> uploadFileList);
 
     public Resource download(Long fileId);
+
+    public java.io.File viewImage(Long fileId);
+
+    public void delete(Long fileId);
 }

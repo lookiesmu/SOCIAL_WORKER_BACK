@@ -4,7 +4,6 @@ import ac.kr.smu.lookie.socialworker.domain.File;
 import ac.kr.smu.lookie.socialworker.repository.FileRepository;
 import ac.kr.smu.lookie.socialworker.service.FileService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -28,41 +27,65 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    public List<File> upload(List<MultipartFile> uploadFileList){
+    @Override
+    public List<File> upload(List<MultipartFile> uploadFileList) {
         List<File> fileList = new ArrayList<>();
-
         Date date = new Date();
         java.io.File uploadPath = new java.io.File(uploadPrimaryPath, sdf.format(date));
 
-        if(!uploadPath.exists())
+        if (!uploadPath.exists())
             uploadPath.mkdirs();//폴더가 없을 경우 폴더 생성
 
-        for(MultipartFile multipartFile : uploadFileList){
+        for (MultipartFile multipartFile : uploadFileList) {
             String fileName = multipartFile.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
-            java.io.File uploadFile = new java.io.File(uploadPath, uuid+"_"+fileName);
+            java.io.File uploadFile = new java.io.File(uploadPath, uuid + "_" + fileName);
 
             try {
                 multipartFile.transferTo(uploadFile);
                 String contentType = Files.probeContentType(uploadFile.toPath());
                 boolean isImage = false;
-                if(contentType!=null)
+                if (contentType != null)
                     isImage = contentType.startsWith("image");
                 File file = File.builder().createDate(date).uuid(uuid).filename(fileName).isImage(isImage).build();
                 fileList.add(file);
-            }catch (IOException e){e.printStackTrace();}
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return fileRepository.saveAll(fileList);
     }
 
     @Override
-    public Resource download(Long fileId){
+    public Resource download(Long fileId) {
         File file = fileRepository.findById(fileId).get();
-        String filePath= uploadPrimaryPath+"\\"+sdf.format(file.getCreateDate())+"\\"+file.getUuid().trim()+"_"+file.getFilename();
+        String filePath = uploadPrimaryPath + "\\" + sdf.format(file.getCreateDate()) + "\\" + file.getUuid().trim() + "_" + file.getFilename();
         Resource downloadFile = new FileSystemResource(filePath);
-        if(!downloadFile.exists())
+
+        if (!downloadFile.exists())
             return null;
+
         return downloadFile;
+    }
+
+    @Override
+    public java.io.File viewImage(Long fileId) {
+        File file = fileRepository.findById(fileId).get();
+        java.io.File image = new java.io.File(uploadPrimaryPath + "\\" + sdf.format(file.getCreateDate()), file.getUuid().trim() + "_" + file.getFilename());
+
+        if (!image.exists() && !file.isImage())
+            return null;
+
+        return image;
+    }
+
+    @Override
+    public void delete(Long fileId) {
+        File file = fileRepository.findById(fileId).get();
+        java.io.File deleteFile = new java.io.File(uploadPrimaryPath + "\\" + sdf.format(file.getCreateDate()), file.getUuid().trim() + "_" + file.getFilename());
+
+        deleteFile.delete();
+        fileRepository.deleteById(fileId);
     }
 }
