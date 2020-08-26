@@ -5,6 +5,8 @@ import ac.kr.smu.lookie.socialworker.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -17,11 +19,30 @@ public class UserController {
 
     private final UserService userService;
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> req){ //로그인
+        Map<String, Object> json = new HashMap<>();
+        MultiValueMap<String,String> header = new LinkedMultiValueMap<>();
+        String token = userService.checkLogin(req.get("username"), req.get("password"));
+        if(token != null) {
+            header.add("X-AUTH-TOKEN", token);
+            json.put("success", true);
+        }
+        else
+            json.put("success", false);
+        return new ResponseEntity<>(json,header, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<?> getUserInfo(@RequestBody String token){ //회원 정보 조회
-//        Map<String, Object> json = new HashMap<>();
-//        json.put("success",);
-//        return new ResponseEntity<>(userService.findByToken(token),HttpStatus.OK);
+        Map<String, Object> json = new HashMap<>();
+
+//        if(user != null) {
+//            json.put("success", true);
+//            json.put("userInfo", user);
+//        }else{
+//            json.put("success", false);
+//        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -42,6 +63,7 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<?> updateUserInfo(){ //회원 정보 수정
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

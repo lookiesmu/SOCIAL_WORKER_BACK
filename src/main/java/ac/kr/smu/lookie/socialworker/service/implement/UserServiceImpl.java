@@ -1,15 +1,17 @@
 package ac.kr.smu.lookie.socialworker.service.implement;
 
+import ac.kr.smu.lookie.socialworker.config.JwtTokenProvider;
+import ac.kr.smu.lookie.socialworker.domain.Role;
 import ac.kr.smu.lookie.socialworker.domain.User;
 import ac.kr.smu.lookie.socialworker.domain.UserRole;
 import ac.kr.smu.lookie.socialworker.repository.UserRepository;
 import ac.kr.smu.lookie.socialworker.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -17,16 +19,14 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    @Override
-    public Map<String, ?> findById() {
-        return null;
-    }
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Override
-    public Map<String, ?> findByToken(String token) {
-        Map<String, Objects> result = new HashMap<>();
-        return null;
-    }
+//    @Override
+//    public UserDetails findByAuthenticationUser(String userPk) {
+//        return userRepository.findById(Long.valueOf(userPk)).orElse(null);
+//    }
+
 
     @Override
     public boolean register(User user) {
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(user.getNickname())
                 .password(user.getPassword())
                 .location(user.getLocation())
-                .role(UserRole.USER)
+                .role(user.getRole())
                 .anonymity(0)
                 .point(0)
                 .build();
@@ -79,16 +79,35 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String findUsername(String name, String email) {
-        Optional<User> repo = userRepository.findByNameAndEmail(name,email);
-        if(repo.isPresent())
-            return repo.get().getUsername();
+        Optional<User> user = userRepository.findByNameAndEmail(name,email);
+        if(user.isPresent())
+            return user.get().getUsername();
         else
             return null;
     }
 
     @Override
     public boolean findPassword(String name, String username) {
-        return false;
+        Optional<User> user = userRepository.findByNameAndUsername(name, username);
+        if(user.isPresent()){
+            //이메일로 임시 비밀번호 전송
+            return true;
+        } else{
+            return false;
+        }
     }
 
+    @Override
+    public String checkLogin(String username, String password){
+        Optional<User> user = userRepository.findByUsername(username);
+        if(!user.isPresent() || passwordEncoder.matches(password, user.get().getPassword()))
+            return null;
+        else
+            return jwtTokenProvider.createToken(String.valueOf(user.get().getId()), user.get().getRole());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String userPk) throws UsernameNotFoundException {
+        return userRepository.findById(Long.valueOf(userPk)).orElseThrow(NullPointerException::new);
+    }
 }
