@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,9 +58,10 @@ public class UserController {
     }
 
     @PatchMapping
-    public ResponseEntity<?> modifyPassword(@RequestBody Map<String, String> req){ //비밀번호 수정
+    public ResponseEntity<?> modifyPassword(@RequestBody Map<String, Object> req){ //비밀번호 수정
         Map<String, Object> json = new HashMap<>();
-        return new ResponseEntity<>(HttpStatus.OK);
+        json.put("success", userService.updatePassword((Long)req.get("id"), req.get("oldPassword").toString(), req.get("newPassword").toString()));
+        return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
     @PutMapping
@@ -72,14 +74,14 @@ public class UserController {
         }
         else
             json.put("success", false);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteUser(@RequestBody Map<String, Long> req){ //회원 정보 삭제
         Map<String, Object> json = new HashMap<>();
         json.put("success", userService.delete(req.get("id")));
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
     @GetMapping("/findUsername")
