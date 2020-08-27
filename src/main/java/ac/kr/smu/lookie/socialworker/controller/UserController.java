@@ -58,17 +58,27 @@ public class UserController {
 
     @PatchMapping
     public ResponseEntity<?> modifyPassword(@RequestBody Map<String, String> req){ //비밀번호 수정
+        Map<String, Object> json = new HashMap<>();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<?> updateUserInfo(){ //회원 정보 수정
-
+    public ResponseEntity<?> updateUserInfo(@RequestBody User req){ //회원 정보 수정
+        Map<String, Object> json = new HashMap<>();
+        User nUser = userService.update(req);
+        if(nUser != null) {
+            json.put("user", nUser);
+            json.put("success", true);
+        }
+        else
+            json.put("success", false);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteUser(){ //회원 정보 삭제
+    public ResponseEntity<?> deleteUser(@RequestBody Map<String, Long> req){ //회원 정보 삭제
+        Map<String, Object> json = new HashMap<>();
+        json.put("success", userService.delete(req.get("id")));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -85,8 +95,11 @@ public class UserController {
     }
 
     @GetMapping("/findPassword")
-    public ResponseEntity<?> findPassword(){ //임시 비밀번호 생성해주기
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> findPassword(@RequestBody Map<String, String> req){ //임시 비밀번호 생성해주기
+        Map<String, Object> json = new HashMap<>();
+        json.put("success", userService.findPassword(req.get("name"),req.get("username")));
+
+        return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
     @GetMapping("/checkUsername")

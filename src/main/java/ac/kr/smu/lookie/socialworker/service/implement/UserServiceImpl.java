@@ -5,15 +5,18 @@ import ac.kr.smu.lookie.socialworker.domain.Role;
 import ac.kr.smu.lookie.socialworker.domain.User;
 import ac.kr.smu.lookie.socialworker.domain.UserRole;
 import ac.kr.smu.lookie.socialworker.repository.UserRepository;
+import ac.kr.smu.lookie.socialworker.service.MailService;
 import ac.kr.smu.lookie.socialworker.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -21,6 +24,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final MailService mailService;
 
 //    @Override
 //    public UserDetails findByAuthenticationUser(String userPk) {
@@ -35,7 +40,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
-                .password(user.getPassword())
+                .password(passwordEncoder.encode(user.getPassword()))
                 .location(user.getLocation())
                 .role(user.getRole())
                 .anonymity(0)
@@ -63,18 +68,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updatePassword(String oldPassword, String newPassword) {
+    public boolean updatePassword(Long id, String oldPassword, String newPassword) {
         return false;
     }
 
     @Override
     public boolean delete(Long id) {
-        return false;
+        User user = userRepository.findById(id).get();
+        userRepository.delete(user);
+        if(userRepository.findById(user.getId()) == null)
+            return true;
+        else
+            return false;
     }
 
     @Override
     public User update(User user) {
-        return null;
+        Optional<User> bUser = userRepository.findById(user.getId());
+        if(bUser.isPresent()) {
+            return userRepository.save(user);
+        }else
+            return null;
     }
 
     @Override
@@ -91,7 +105,12 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findByNameAndUsername(name, username);
         if(user.isPresent()){
             //이메일로 임시 비밀번호 전송
-            return true;
+            String newPassword = passwordEncoder.encode(mailService.sendSimpleMessage(user.get().getEmail()));
+            Optional<User> nUser = userRepository.updateUserPassword(user.get().getId(),newPassword);
+            if(nUser.isPresent())
+                return true;
+            else
+                return false;
         } else{
             return false;
         }
