@@ -2,10 +2,7 @@ package ac.kr.smu.lookie.socialworker.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,9 +14,8 @@ import java.util.stream.Stream;
 
 @Entity
 @Table
-@NoArgsConstructor
+@NoArgsConstructor (access = AccessLevel.PROTECTED)
 @Getter
-@Setter
 @Builder
 public class User implements UserDetails {
 
