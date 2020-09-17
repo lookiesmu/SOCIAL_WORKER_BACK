@@ -1,18 +1,9 @@
 package ac.kr.smu.lookie.socialworker.service;
 
+
 import ac.kr.smu.lookie.socialworker.domain.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
-import java.util.Map;
-import java.util.Objects;
-
-public interface UserService extends UserDetailsService {
-
-//    public Map<String, ?> findById(); //회원정보 조회
-//    public Map<String, ?> findByToken(String token);
-//    public UserDetails findByAuthenticationUser(String userPk); //회원정보 조회
-
+public interface UserService {
     public boolean register(User user); //회원가입
     public boolean checkUsername(String username); //중복 아이디 검사
     public boolean checkNickname(String nickname); //중복 닉네임 검사
@@ -23,4 +14,5 @@ public interface UserService extends UserDetailsService {
     public boolean findPassword(String name, String username); //비밀번호 찾기
 
     public String checkLogin(String username, String password);
+
 }
