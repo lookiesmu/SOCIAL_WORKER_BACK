@@ -1,6 +1,6 @@
 package ac.kr.smu.lookie.socialworker.controller;
 
-import ac.kr.smu.lookie.socialworker.domain.File;
+import ac.kr.smu.lookie.socialworker.domain.FileInfo;
 import ac.kr.smu.lookie.socialworker.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -62,8 +62,8 @@ public class FileController {
 
     @PostMapping
     public ResponseEntity<?> postFile(List<MultipartFile> uploadFileList) {
-        List<File> uploadFile = fileService.upload(uploadFileList);
-        CollectionModel<File> body = CollectionModel.of(uploadFile);
+        List<FileInfo> uploadFileInfo = fileService.upload(uploadFileList);
+        CollectionModel<FileInfo> body = CollectionModel.of(uploadFileInfo);
 
         body.add(linkTo(methodOn(FileController.class).postFile(uploadFileList)).withSelfRel());
 
