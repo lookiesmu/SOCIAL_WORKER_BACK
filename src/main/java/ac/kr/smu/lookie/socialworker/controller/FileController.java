@@ -84,7 +84,7 @@ public class FileController {
 
         body.add(linkTo(methodOn(FileController.class).postFile(uploadFileList, user)).withSelfRel());
         log.info(user.getUsername() + " : " + "파일 업로드");
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{fileId}")
