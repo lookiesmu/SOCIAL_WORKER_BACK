@@ -4,6 +4,7 @@ import ac.kr.smu.lookie.socialworker.domain.FileInfo;
 import ac.kr.smu.lookie.socialworker.repository.FileRepository;
 import ac.kr.smu.lookie.socialworker.service.FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -14,13 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileServiceImpl implements FileService {
 
     @Value("${upload-primary-path}")
@@ -82,11 +81,20 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void delete(Long fileId) {
+    public Map<String, Boolean> delete(Long fileId) {
         FileInfo fileInfo = fileRepository.findById(fileId).get();
         File deleteFile = new File(uploadPrimaryPath + "\\" + sdf.format(fileInfo.getCreateDate()), fileInfo.getUuid().trim() + "_" + fileInfo.getFilename());
+        Map<String, Boolean> result = new HashMap<>();
 
-        deleteFile.delete();
-        fileRepository.deleteById(fileId);
+        try{
+            deleteFile.delete();
+            fileRepository.deleteById(fileId);
+            result.put("success",true);
+            log.info(fileId+"번 파일 삭제 성공");
+        }catch (Exception e){
+            result.put("success",false);
+            log.info(fileId+"번 파일 삭제 실패");
+        }
+        return result;
     }
 }
