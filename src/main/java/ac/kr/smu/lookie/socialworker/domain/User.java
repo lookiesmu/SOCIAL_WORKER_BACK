@@ -52,8 +52,7 @@ public class User implements UserDetails {
 
     @Column
     private int point; //포인트
-
-
+  
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
