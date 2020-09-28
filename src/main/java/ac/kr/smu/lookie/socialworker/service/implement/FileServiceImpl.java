@@ -1,6 +1,6 @@
 package ac.kr.smu.lookie.socialworker.service.implement;
 
-import ac.kr.smu.lookie.socialworker.domain.File;
+import ac.kr.smu.lookie.socialworker.domain.FileInfo;
 import ac.kr.smu.lookie.socialworker.repository.FileRepository;
 import ac.kr.smu.lookie.socialworker.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -28,10 +29,10 @@ public class FileServiceImpl implements FileService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
-    public List<File> upload(List<MultipartFile> uploadFileList) {
-        List<File> fileList = new ArrayList<>();
+    public List<FileInfo> upload(List<MultipartFile> uploadFileList) {
+        List<FileInfo> fileInfoList = new ArrayList<>();
         Date date = new Date();
-        java.io.File uploadPath = new java.io.File(uploadPrimaryPath, sdf.format(date));
+        File uploadPath = new File(uploadPrimaryPath, sdf.format(date));
 
         if (!uploadPath.exists())
             uploadPath.mkdirs();//폴더가 없을 경우 폴더 생성
@@ -39,7 +40,7 @@ public class FileServiceImpl implements FileService {
         for (MultipartFile multipartFile : uploadFileList) {
             String fileName = multipartFile.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
-            java.io.File uploadFile = new java.io.File(uploadPath, uuid + "_" + fileName);
+            File uploadFile = new File(uploadPath, uuid + "_" + fileName);
 
             try {
                 multipartFile.transferTo(uploadFile);
@@ -47,20 +48,20 @@ public class FileServiceImpl implements FileService {
                 boolean isImage = false;
                 if (contentType != null)
                     isImage = contentType.startsWith("image");
-                File file = File.builder().createDate(date).uuid(uuid).filename(fileName).isImage(isImage).build();
-                fileList.add(file);
+                FileInfo fileInfo = FileInfo.builder().createDate(date).uuid(uuid).filename(fileName).isImage(isImage).build();
+                fileInfoList.add(fileInfo);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        return fileRepository.saveAll(fileList);
+        return fileRepository.saveAll(fileInfoList);
     }
 
     @Override
     public Resource download(Long fileId) {
-        File file = fileRepository.findById(fileId).get();
-        String filePath = uploadPrimaryPath + "\\" + sdf.format(file.getCreateDate()) + "\\" + file.getUuid().trim() + "_" + file.getFilename();
+        FileInfo fileInfo = fileRepository.findById(fileId).get();
+        String filePath = uploadPrimaryPath + "\\" + sdf.format(fileInfo.getCreateDate()) + "\\" + fileInfo.getUuid().trim() + "_" + fileInfo.getFilename();
         Resource downloadFile = new FileSystemResource(filePath);
 
         if (!downloadFile.exists())
@@ -70,11 +71,11 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public java.io.File viewImage(Long fileId) {
-        File file = fileRepository.findById(fileId).get();
-        java.io.File image = new java.io.File(uploadPrimaryPath + "\\" + sdf.format(file.getCreateDate()), file.getUuid().trim() + "_" + file.getFilename());
+    public File viewImage(Long fileId) {
+        FileInfo fileInfo = fileRepository.findById(fileId).get();
+        File image = new File(uploadPrimaryPath + "\\" + sdf.format(fileInfo.getCreateDate()), fileInfo.getUuid().trim() + "_" + fileInfo.getFilename());
 
-        if (!image.exists() && !file.isImage())
+        if (!image.exists() || !fileInfo.isImage())
             return null;
 
         return image;
@@ -82,8 +83,8 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void delete(Long fileId) {
-        File file = fileRepository.findById(fileId).get();
-        java.io.File deleteFile = new java.io.File(uploadPrimaryPath + "\\" + sdf.format(file.getCreateDate()), file.getUuid().trim() + "_" + file.getFilename());
+        FileInfo fileInfo = fileRepository.findById(fileId).get();
+        File deleteFile = new File(uploadPrimaryPath + "\\" + sdf.format(fileInfo.getCreateDate()), fileInfo.getUuid().trim() + "_" + fileInfo.getFilename());
 
         deleteFile.delete();
         fileRepository.deleteById(fileId);
