@@ -31,7 +31,9 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void permit(Long id) {
         Board board = boardRepository.findById(id).get();
+
         board.setPermit(true);
+        boardRepository.save(board);
     }
 
     @Override
