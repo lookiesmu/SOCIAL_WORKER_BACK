@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 public interface FileService {
 
@@ -15,5 +16,5 @@ public interface FileService {
 
     public File viewImage(Long fileId);
 
-    public void delete(Long fileId);
+    public Map<String, Boolean> delete(Long fileId);
 }
