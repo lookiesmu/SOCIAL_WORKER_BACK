@@ -1,10 +1,11 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +39,7 @@ public class User implements UserDetails {
     private String email; //이메일
 
     @Column(length = 300, nullable = false)
+    @JsonIgnore
 //    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
@@ -53,7 +55,7 @@ public class User implements UserDetails {
 
     @Column
     private int point; //포인트
-
+  
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
@@ -69,22 +71,32 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return true;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((User)obj).getId()==this.id;
     }
 }
