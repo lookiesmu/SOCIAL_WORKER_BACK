@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface PostService {
 
-    public Page<Post> getPostList(Board board, Pageable pageable);
+    public Page<Post> getPostList(Long boardId, Pageable pageable);
 
     public Post getPost(Long id);
 

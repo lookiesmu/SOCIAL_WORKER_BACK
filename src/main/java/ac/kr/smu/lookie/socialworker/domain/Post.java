@@ -1,6 +1,5 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -18,6 +17,7 @@ import java.util.List;
 @Builder
 @Getter
 @ToString
+@Setter
 public class Post implements Serializable {
 
     @Id
@@ -53,6 +53,10 @@ public class Post implements Serializable {
 
     @OneToOne
     private Board board;//게시판
+
+    @Transient
+    @Builder.Default
+    private List<Comment> commentList = new ArrayList<>();
 
     public void update(Post post){
         this.title = post.getTitle();

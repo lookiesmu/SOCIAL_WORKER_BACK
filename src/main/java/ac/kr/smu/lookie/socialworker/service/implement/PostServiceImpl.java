@@ -20,8 +20,8 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
 
     @Override
-    public Page<Post> getPostList(Board board, Pageable pageable) {
-        return postRepository.findByBoardOrderByCreatedDate(board,pageable);
+    public Page<Post> getPostList(Long boardId, Pageable pageable) {
+        return postRepository.findByBoardOrderByCreatedDate(Board.builder().id(boardId).build(),pageable);
     }
 
     @Override
