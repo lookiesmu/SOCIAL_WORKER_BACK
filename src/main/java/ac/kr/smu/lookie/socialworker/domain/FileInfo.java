@@ -1,9 +1,6 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -16,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class File {
+public class FileInfo {
 
     @Id
     @Column
@@ -36,7 +33,7 @@ public class File {
     private boolean isImage;
 
     @Builder
-    public File(String filename, Date createDate, boolean isImage, String uuid) {
+    public FileInfo(String filename, Date createDate, boolean isImage, String uuid) {
         this.filename = filename;
         this.isImage = isImage;
         this.createDate = createDate;
