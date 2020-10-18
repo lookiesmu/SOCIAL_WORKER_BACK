@@ -29,9 +29,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment register(Comment comment, Comment recomment) {
+    public Comment register(Long preCommentId, Comment comment) {
         comment.setId(commentRepository.save(comment).getId());
-        commentRepository.addRecomment(recomment.getId(),comment.getId());
+        commentRepository.addRecomment(preCommentId, comment.getId());
 
         return comment;
     }

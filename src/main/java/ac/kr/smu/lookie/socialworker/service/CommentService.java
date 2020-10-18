@@ -12,7 +12,7 @@ public interface CommentService {
 
     public Comment register(Comment comment);
 
-    public Comment register(Comment comment, Comment recomment);
+    public Comment register(Long preCommentId,Comment comment);
 
     public Map<String, Boolean> delete(Long id);
 

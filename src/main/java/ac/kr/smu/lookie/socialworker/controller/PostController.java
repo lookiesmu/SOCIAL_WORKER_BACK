@@ -84,7 +84,7 @@ public class PostController {
         if(!user.equals(postService.getPost(postId).getUser()) || !user.getRoles().contains("ADMIN")){
             return ResponseEntity.status(403).build();
         }
-        
+
         return ResponseEntity.ok(postService.delete(postId));
     }
 }
