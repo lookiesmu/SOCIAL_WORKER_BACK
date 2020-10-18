@@ -1,5 +1,6 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -32,12 +33,18 @@ public class FileInfo {
     @Column
     private boolean isImage;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn
+    @JsonIgnore
+    private Post post;
+
     @Builder
-    public FileInfo(String filename, Date createDate, boolean isImage, String uuid) {
+    public FileInfo(String filename, Date createDate, boolean isImage, String uuid, Post post) {
         this.filename = filename;
         this.isImage = isImage;
         this.createDate = createDate;
         this.uuid = uuid;
+        this.post = post;
     }
 
 }

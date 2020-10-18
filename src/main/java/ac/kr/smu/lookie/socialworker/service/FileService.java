@@ -10,6 +10,8 @@ import java.util.Map;
 
 public interface FileService {
 
+    public FileInfo getFileInfo(Long id);
+
     public List<FileInfo> upload(List<MultipartFile> uploadFileList);
 
     public Resource download(Long id);

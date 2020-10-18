@@ -90,6 +90,11 @@ public class FileController {
 
     @DeleteMapping("/{fileId}")
     public ResponseEntity<?> deleteFile(@PathVariable("fileId") Long fileId, @AuthenticationPrincipal User user) {
+        FileInfo fileInfo = fileService.getFileInfo(fileId);
+
+        if(!user.equals(fileInfo.getPost().getUser()) || !user.getRoles().contains("ADMIN"))
+            return ResponseEntity.status(403).build();
+
         return ResponseEntity.ok(fileService.delete(fileId));
     }
 }
