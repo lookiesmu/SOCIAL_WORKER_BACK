@@ -40,4 +40,9 @@ public class CommentServiceImpl implements CommentService {
     public Map<String, Boolean> delete(Long id) {
         return deleteService.delete(commentRepository,id);
     }
+
+    @Override
+    public void deleteByPost(Post post) {
+        commentRepository.deleteByPost(post);
+    }
 }
