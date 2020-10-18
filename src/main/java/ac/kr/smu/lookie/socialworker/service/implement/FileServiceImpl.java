@@ -30,6 +30,11 @@ public class FileServiceImpl implements FileService{
     private final CheckSuccessDeleteService deleteService;
 
     @Override
+    public FileInfo getFileInfo(Long id) {
+        return fileRepository.getOne(id);
+    }
+
+    @Override
     public List<FileInfo> upload(List<MultipartFile> uploadFileList) {
         List<FileInfo> fileInfoList = new ArrayList<>();
         Date date = new Date();

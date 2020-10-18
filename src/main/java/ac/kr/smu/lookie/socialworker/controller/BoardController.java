@@ -33,7 +33,7 @@ public class BoardController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    
+
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{boardId}")
     public ResponseEntity<?> patchBoard(@PathVariable("boardId") Long boardId){//게시판 승인
