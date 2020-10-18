@@ -1,6 +1,6 @@
 package ac.kr.smu.lookie.socialworker.controller;
 
-import ac.kr.smu.lookie.socialworker.domain.Board;
+
 import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.domain.User;
 import ac.kr.smu.lookie.socialworker.service.CommentService;
@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -29,7 +28,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class PostController {
 
     private final PostService postService;
-    private final CommentService commentService;
     private final int PAGE_SIZE = 25;
 
     @GetMapping
@@ -47,8 +45,6 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable("postId") Long postId){//글 상세보기
         Post post = postService.getPost(postId);
-        post.setCommentList(commentService.getCommentList(postId));
-
         EntityModel<Post> body = EntityModel.of(post);
 
         body.add(linkTo(methodOn(PostController.class).getPost(postId)).withSelfRel());
@@ -64,10 +60,15 @@ public class PostController {
     }
 
     @PutMapping
-    public ResponseEntity<?> putPost(@RequestBody Post post){//글 수정
+    public ResponseEntity<?> putPost(@RequestBody Post post, @AuthenticationPrincipal User user){//글 수정
+
+        if(!user.equals(postService.getPost(post.getId()).getUser())){
+            return ResponseEntity.status(403).build();
+        }
+
         EntityModel<Post> body = EntityModel.of(postService.update(post));
 
-        body.add(linkTo(methodOn(PostController.class).putPost(post)).withSelfRel());
+        body.add(linkTo(methodOn(PostController.class).putPost(post, user)).withSelfRel());
         return ResponseEntity.ok(body);
     }
 
@@ -78,7 +79,12 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable("postId") Long postId){
+    public ResponseEntity<?> deletePost(@PathVariable("postId") Long postId, @AuthenticationPrincipal User user){
+
+        if(!user.equals(postService.getPost(postId).getUser()) || !user.getRoles().contains("ADMIN")){
+            return ResponseEntity.status(403).build();
+        }
+
         return ResponseEntity.ok(postService.delete(postId));
     }
 }

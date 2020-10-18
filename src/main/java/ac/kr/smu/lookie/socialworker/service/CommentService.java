@@ -8,11 +8,15 @@ import java.util.Map;
 
 public interface CommentService {
 
+    public Comment getComment(Long id);
+
     public List<Comment> getCommentList(Long postId);
 
     public Comment register(Comment comment);
 
-    public Comment register(Comment comment, Comment recomment);
+    public Comment register(Long preCommentId,Comment comment);
 
     public Map<String, Boolean> delete(Long id);
+
+    public void deleteByPost(Post post);
 }
