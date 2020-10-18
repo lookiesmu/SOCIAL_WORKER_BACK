@@ -3,6 +3,7 @@ package ac.kr.smu.lookie.socialworker.controller;
 import ac.kr.smu.lookie.socialworker.domain.Board;
 import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.domain.User;
+import ac.kr.smu.lookie.socialworker.service.CommentService;
 import ac.kr.smu.lookie.socialworker.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +29,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
     private final int PAGE_SIZE = 25;
 
     @GetMapping
-    public ResponseEntity<?> getPostList(@PathVariable("boardId") Long boardId,@RequestParam int page){
+    public ResponseEntity<?> getPostList(@PathVariable("boardId") Long boardId,@RequestParam int page){//게시판 글 목록
         Pageable pageable = PageRequest.of(page-1,PAGE_SIZE);
-        Board board = Board.builder().id(boardId).build();
-        Page<Post> postList = postService.getPostList(board, pageable);
+
+        Page<Post> postList = postService.getPostList(boardId, pageable);
         PageMetadata pageMetadata = new PageMetadata(postList.getSize(), postList.getNumber(), postList.getTotalElements());
         PagedModel<Post> body = PagedModel.of(postList.getContent(),pageMetadata);
 
@@ -43,15 +45,18 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable("postId") Long postId){
-        EntityModel<Post> body = EntityModel.of(postService.getPost(postId));
+    public ResponseEntity<?> getPost(@PathVariable("postId") Long postId){//글 상세보기
+        Post post = postService.getPost(postId);
+        post.setCommentList(commentService.getCommentList(postId));
+
+        EntityModel<Post> body = EntityModel.of(post);
 
         body.add(linkTo(methodOn(PostController.class).getPost(postId)).withSelfRel());
         return ResponseEntity.ok(body);
     }
 
     @PostMapping
-    public ResponseEntity<?> postPost(@PathVariable("boardId") Long boardId, @RequestBody Post post){
+    public ResponseEntity<?> postPost(@PathVariable("boardId") Long boardId, @RequestBody Post post){//글 등록
         EntityModel<Post> body = EntityModel.of(postService.register(post));
 
         body.add(linkTo(methodOn(PostController.class).postPost(boardId,post)).withSelfRel());
@@ -59,7 +64,7 @@ public class PostController {
     }
 
     @PutMapping
-    public ResponseEntity<?> putPost(@RequestBody Post post){
+    public ResponseEntity<?> putPost(@RequestBody Post post){//글 수정
         EntityModel<Post> body = EntityModel.of(postService.update(post));
 
         body.add(linkTo(methodOn(PostController.class).putPost(post)).withSelfRel());

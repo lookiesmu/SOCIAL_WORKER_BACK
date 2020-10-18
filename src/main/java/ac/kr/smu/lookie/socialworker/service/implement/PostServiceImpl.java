@@ -3,13 +3,16 @@ package ac.kr.smu.lookie.socialworker.service.implement;
 import ac.kr.smu.lookie.socialworker.domain.Board;
 import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.domain.User;
+import ac.kr.smu.lookie.socialworker.repository.FileRepository;
 import ac.kr.smu.lookie.socialworker.repository.PostRepository;
+import ac.kr.smu.lookie.socialworker.service.CheckSuccessDeleteService;
 import ac.kr.smu.lookie.socialworker.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,10 +21,12 @@ import java.util.Map;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final FileRepository fileRepository;
+    private final CheckSuccessDeleteService deleteService;
 
     @Override
-    public Page<Post> getPostList(Board board, Pageable pageable) {
-        return postRepository.findByBoardOrderByCreatedDate(board,pageable);
+    public Page<Post> getPostList(Long boardId, Pageable pageable) {
+        return postRepository.findByBoardOrderByCreatedDate(Board.builder().id(boardId).build(),pageable);
     }
 
     @Override
@@ -55,15 +60,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public Map<String, Boolean> delete(Long id) {
-        Map<String, Boolean> result = new HashMap<>();
-
-        try{
-            postRepository.deleteById(id);
-            result.put("success",true);
-        }catch (Exception e){
-            result.put("success",false);
-        }
-        return result;
+        return deleteService.delete(postRepository, id);
     }
 }
