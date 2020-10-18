@@ -3,6 +3,7 @@ package ac.kr.smu.lookie.socialworker.service.implement;
 import ac.kr.smu.lookie.socialworker.domain.Board;
 import ac.kr.smu.lookie.socialworker.repository.BoardRepository;
 import ac.kr.smu.lookie.socialworker.service.BoardService;
+import ac.kr.smu.lookie.socialworker.service.CheckSuccessDeleteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
+
     private final BoardRepository boardRepository;
 
     @Override
@@ -31,7 +33,9 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void permit(Long id) {
         Board board = boardRepository.findById(id).get();
+
         board.setPermit(true);
+        boardRepository.save(board);
     }
 
     @Override

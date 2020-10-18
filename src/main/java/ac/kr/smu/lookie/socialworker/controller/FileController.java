@@ -90,19 +90,11 @@ public class FileController {
 
     @DeleteMapping("/{fileId}")
     public ResponseEntity<?> deleteFile(@PathVariable("fileId") Long fileId, @AuthenticationPrincipal User user) {
-        Map<String, Boolean> body = new HashMap<>();
+        FileInfo fileInfo = fileService.getFileInfo(fileId);
 
-        try {
-            fileService.delete(fileId);
-            body.put("success", true);
-        } catch (Exception e) {
-            body.put("success", null);
-            log.info(user.getUsername() + " : " + fileId + " 파일 삭제 실패");
-        }
+        if(!user.equals(fileInfo.getPost().getUser()) || !user.getRoles().contains("ADMIN"))
+            return ResponseEntity.status(403).build();
 
-        EntityModel<Map<String, Boolean>> returnBody = EntityModel.of(body);
-        returnBody.add(linkTo(methodOn(FileController.class).deleteFile(fileId, user)).withSelfRel());
-        log.info(user.getUsername() + " : " + fileId + " 파일 삭제 성공");
-        return ResponseEntity.ok(returnBody);
+        return ResponseEntity.ok(fileService.delete(fileId));
     }
 }

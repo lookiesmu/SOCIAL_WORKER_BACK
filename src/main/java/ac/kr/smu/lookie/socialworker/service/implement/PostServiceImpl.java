@@ -3,13 +3,18 @@ package ac.kr.smu.lookie.socialworker.service.implement;
 import ac.kr.smu.lookie.socialworker.domain.Board;
 import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.domain.User;
+import ac.kr.smu.lookie.socialworker.repository.FileRepository;
 import ac.kr.smu.lookie.socialworker.repository.PostRepository;
+import ac.kr.smu.lookie.socialworker.service.CheckSuccessDeleteService;
+import ac.kr.smu.lookie.socialworker.service.CommentService;
+import ac.kr.smu.lookie.socialworker.service.FileService;
 import ac.kr.smu.lookie.socialworker.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,15 +23,23 @@ import java.util.Map;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final CommentService commentService;
+    private final FileService fileService;
+    private final CheckSuccessDeleteService deleteService;
 
     @Override
-    public Page<Post> getPostList(Board board, Pageable pageable) {
-        return postRepository.findByBoardOrderByCreatedDate(board,pageable);
+    public Page<Post> getPostList(Long boardId, Pageable pageable) {
+        return postRepository.findByBoardOrderByCreatedDate(Board.builder().id(boardId).build(),pageable);
     }
 
     @Override
     public Post getPost(Long id) {
-        return postRepository.findById(id).orElse(null);
+        Post post = postRepository.findById(id).orElse(null);
+
+        if(post!=null)
+            post.setCommentList(commentService.getCommentList(post.getId()));
+
+        return post;
     }
 
     @Override
@@ -55,13 +68,16 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public Map<String, Boolean> delete(Long id) {
-        Map<String, Boolean> result = new HashMap<>();
-
+        Map<String, Boolean> result;
         try{
-            postRepository.deleteById(id);
-            result.put("success",true);
+            fileService.deleteByPost(Post.builder().id(id).build());
+            commentService.deleteByPost(Post.builder().id(id).build());
+
+            result=deleteService.delete(postRepository, id);
         }catch (Exception e){
+            result = new HashMap<>();
             result.put("success",false);
         }
         return result;
