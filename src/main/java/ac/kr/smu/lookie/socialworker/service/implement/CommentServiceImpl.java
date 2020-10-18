@@ -19,6 +19,11 @@ public class CommentServiceImpl implements CommentService {
     private final CheckSuccessDeleteService deleteService;
 
     @Override
+    public Comment getComment(Long id) {
+        return commentRepository.getOne(id);
+    }
+
+    @Override
     public List<Comment> getCommentList(Long postId) {
         return commentRepository.findByPostOrderByCreateDateDesc(Post.builder().id(postId).build());
     }
