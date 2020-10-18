@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -32,7 +33,8 @@ public class BoardController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
+    
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{boardId}")
     public ResponseEntity<?> patchBoard(@PathVariable("boardId") Long boardId){//게시판 승인
         boardService.permit(boardId);
@@ -40,6 +42,7 @@ public class BoardController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{boardId}")
     public ResponseEntity<?> deleteBoard(@PathVariable("boardId") Long boardId){
         boardService.delete(boardId);
