@@ -1,7 +1,6 @@
 package ac.kr.smu.lookie.socialworker.service.implement;
 
 import ac.kr.smu.lookie.socialworker.domain.FileInfo;
-import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.repository.FileRepository;
 import ac.kr.smu.lookie.socialworker.service.CheckSuccessDeleteService;
 import ac.kr.smu.lookie.socialworker.service.FileService;
@@ -29,11 +28,6 @@ public class FileServiceImpl implements FileService{
     private final FileRepository fileRepository;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     private final CheckSuccessDeleteService deleteService;
-
-    @Override
-    public FileInfo getFileInfo(Long id) {
-        return fileRepository.getOne(id);
-    }
 
     @Override
     public List<FileInfo> upload(List<MultipartFile> uploadFileList) {
@@ -107,10 +101,5 @@ public class FileServiceImpl implements FileService{
         }
 
         return result;
-    }
-
-    @Override
-    public void deleteByPost(Post post) {
-        fileRepository.deleteByPost(post);
     }
 }

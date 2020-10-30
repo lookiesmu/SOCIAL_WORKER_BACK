@@ -19,11 +19,6 @@ public class CommentServiceImpl implements CommentService {
     private final CheckSuccessDeleteService deleteService;
 
     @Override
-    public Comment getComment(Long id) {
-        return commentRepository.getOne(id);
-    }
-
-    @Override
     public List<Comment> getCommentList(Long postId) {
         return commentRepository.findByPostOrderByCreateDateDesc(Post.builder().id(postId).build());
     }
@@ -34,9 +29,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment register(Long preCommentId, Comment comment) {
+    public Comment register(Comment comment, Comment recomment) {
         comment.setId(commentRepository.save(comment).getId());
-        commentRepository.addRecomment(preCommentId, comment.getId());
+        commentRepository.addRecomment(recomment.getId(),comment.getId());
 
         return comment;
     }
@@ -44,10 +39,5 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Map<String, Boolean> delete(Long id) {
         return deleteService.delete(commentRepository,id);
-    }
-
-    @Override
-    public void deleteByPost(Post post) {
-        commentRepository.deleteByPost(post);
     }
 }
