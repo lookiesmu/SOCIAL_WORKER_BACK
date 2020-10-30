@@ -32,7 +32,7 @@ public class CommentController {
         return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{precommmnetId}")
+    @PostMapping("/{precommmentId}")
     public ResponseEntity<?> postRecomment(@RequestBody Comment comment, @PathVariable("postId") Long postId,
                                            @PathVariable("precommentId") Long precommentId) {
         comment.setPost(Post.builder().id(postId).build());
