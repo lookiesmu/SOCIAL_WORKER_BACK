@@ -61,9 +61,11 @@ public class PostServiceImpl implements PostService {
 
         if(post.getLike().contains(user))
             post.getLike().remove(user);
-        else
+        else {
             post.getLike().add(user);
-
+            if(post.getLike().size() >= 10)
+                post.setHot(true);
+        }
         postRepository.save(post);
     }
 
@@ -81,5 +83,10 @@ public class PostServiceImpl implements PostService {
             result.put("success",false);
         }
         return result;
+    }
+
+    @Override
+    public Page<Post> getHotPostList(Pageable pageable) {
+        return postRepository.findByHotIsTrueOOrderByModifiedDateDesc(pageable);
     }
 }

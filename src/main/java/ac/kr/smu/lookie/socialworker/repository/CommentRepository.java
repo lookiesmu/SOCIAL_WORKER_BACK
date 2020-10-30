@@ -16,8 +16,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "INSERT INTO COMMENT_RECOMMENT_LIST VALUES(:preCommentId, :recommentId)", nativeQuery=true)
-    public int addRecomment(@Param("preCommentId") Long preCommentId, @Param("recommentId") Long recommentId);
+    @Query(value = "INSERT INTO COMMENT_RECOMMENT_LIST VALUES(:precommentId, :recommentId)", nativeQuery=true)
+    public int addRecomment(@Param("precommentId") Long preCommentId, @Param("recommentId") Long recommentId);
 
     public void deleteByPost(Post post);
 }

@@ -53,6 +53,9 @@ public class Post implements Serializable {
     @OneToOne
     private Board board;//게시판
 
+    @Column
+    private boolean isHot;
+
     @Transient
     @Builder.Default
     private List<Comment> commentList = new ArrayList<>();

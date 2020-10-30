@@ -14,7 +14,7 @@ public interface CommentService {
 
     public Comment register(Comment comment);
 
-    public Comment register(Long preCommentId,Comment comment);
+    public Comment register(Comment recomment, Long precommentId);
 
     public Map<String, Boolean> delete(Long id);
 

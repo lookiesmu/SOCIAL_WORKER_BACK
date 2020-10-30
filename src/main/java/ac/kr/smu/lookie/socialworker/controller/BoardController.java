@@ -20,10 +20,10 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping
-    public ResponseEntity<?> getBoard(){
+    public ResponseEntity<?> getBoardList(){
         CollectionModel<Board> body = CollectionModel.of(boardService.getPermittedBoardList());
 
-        body.add(linkTo(methodOn(BoardController.class).getBoard()).withSelfRel());
+        body.add(linkTo(methodOn(BoardController.class).getBoardList()).withSelfRel());
         return ResponseEntity.ok(body);
     }
 

@@ -1,13 +1,13 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Table
