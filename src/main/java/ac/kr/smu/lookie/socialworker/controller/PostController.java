@@ -3,7 +3,6 @@ package ac.kr.smu.lookie.socialworker.controller;
 
 import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.domain.User;
-import ac.kr.smu.lookie.socialworker.service.CommentService;
 import ac.kr.smu.lookie.socialworker.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -52,10 +50,10 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> postPost(@PathVariable("boardId") Long boardId, @RequestBody Post post){//글 등록
+    public ResponseEntity<?> postPost(@RequestBody Post post, @PathVariable("boardId") Long boardId){//글 등록
         EntityModel<Post> body = EntityModel.of(postService.register(post));
 
-        body.add(linkTo(methodOn(PostController.class).postPost(boardId,post)).withSelfRel());
+        body.add(linkTo(methodOn(PostController.class).postPost(post,boardId)).withSelfRel());
         return new ResponseEntity<>(body,HttpStatus.CREATED);
     }
 
@@ -86,5 +84,17 @@ public class PostController {
         }
 
         return ResponseEntity.ok(postService.delete(postId));
+    }
+
+    @GetMapping("/hot")
+    public ResponseEntity<?> getHotPostList(@RequestParam int page){
+        Pageable pageable = PageRequest.of(page-1,PAGE_SIZE);
+
+        Page<Post> postList = postService.getHotPostList(pageable);
+        PageMetadata pageMetadata = new PageMetadata(postList.getSize(), postList.getNumber(), postList.getTotalElements());
+        PagedModel<Post> body = PagedModel.of(postList.getContent(),pageMetadata);
+
+        body.add(linkTo(methodOn(PostController.class).getHotPostList(page)).withSelfRel());
+        return ResponseEntity.ok(body);
     }
 }

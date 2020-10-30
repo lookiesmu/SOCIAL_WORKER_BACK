@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -49,7 +47,7 @@ public class CommentController {
     public ResponseEntity deleteComment(@PathVariable("commentId") Long commentId, @AuthenticationPrincipal User user) {
         if(!user.equals(commentService.getComment(commentId).getUser()) || !user.getRoles().contains("ADMIN"))
             return ResponseEntity.status(403).build();
-        
+
         return ResponseEntity.ok(commentService.delete(commentId));
     }
 }

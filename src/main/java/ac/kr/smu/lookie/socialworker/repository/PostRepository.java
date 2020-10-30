@@ -11,4 +11,6 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     public Page<Post> findByBoardOrderByCreatedDate(Board board, Pageable pageable);
 
     public void deleteById(Long id);
+
+    public Page<Post> findByHotIsTrue(Pageable pageable);
 }
