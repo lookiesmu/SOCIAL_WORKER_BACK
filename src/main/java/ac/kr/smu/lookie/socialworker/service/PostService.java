@@ -22,4 +22,6 @@ public interface PostService {
     public void like(Long id, User user);//좋아요
 
     public Map<String, Boolean> delete(Long id);
+
+    public Page<Post> getHotPostList(Pageable pageable);
 }
