@@ -1,8 +1,9 @@
 package ac.kr.smu.lookie.socialworker.controller;
 
-
+import ac.kr.smu.lookie.socialworker.domain.Board;
 import ac.kr.smu.lookie.socialworker.domain.Post;
 import ac.kr.smu.lookie.socialworker.domain.User;
+import ac.kr.smu.lookie.socialworker.service.CommentService;
 import ac.kr.smu.lookie.socialworker.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
@@ -26,6 +29,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
     private final int PAGE_SIZE = 25;
 
     @GetMapping
@@ -43,6 +47,8 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable("postId") Long postId){//글 상세보기
         Post post = postService.getPost(postId);
+        post.setCommentList(commentService.getCommentList(postId));
+
         EntityModel<Post> body = EntityModel.of(post);
 
         body.add(linkTo(methodOn(PostController.class).getPost(postId)).withSelfRel());
@@ -50,23 +56,18 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> postPost(@RequestBody Post post, @PathVariable("boardId") Long boardId){//글 등록
+    public ResponseEntity<?> postPost(@PathVariable("boardId") Long boardId, @RequestBody Post post){//글 등록
         EntityModel<Post> body = EntityModel.of(postService.register(post));
 
-        body.add(linkTo(methodOn(PostController.class).postPost(post,boardId)).withSelfRel());
+        body.add(linkTo(methodOn(PostController.class).postPost(boardId,post)).withSelfRel());
         return new ResponseEntity<>(body,HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<?> putPost(@RequestBody Post post, @AuthenticationPrincipal User user){//글 수정
-
-        if(!user.equals(postService.getPost(post.getId()).getUser())){
-            return ResponseEntity.status(403).build();
-        }
-
+    public ResponseEntity<?> putPost(@RequestBody Post post){//글 수정
         EntityModel<Post> body = EntityModel.of(postService.update(post));
 
-        body.add(linkTo(methodOn(PostController.class).putPost(post, user)).withSelfRel());
+        body.add(linkTo(methodOn(PostController.class).putPost(post)).withSelfRel());
         return ResponseEntity.ok(body);
     }
 
@@ -77,24 +78,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable("postId") Long postId, @AuthenticationPrincipal User user){
-
-        if(!user.equals(postService.getPost(postId).getUser()) || !user.getRoles().contains("ADMIN")){
-            return ResponseEntity.status(403).build();
-        }
-
+    public ResponseEntity<?> deletePost(@PathVariable("postId") Long postId){
         return ResponseEntity.ok(postService.delete(postId));
-    }
-
-    @GetMapping("/hot")
-    public ResponseEntity<?> getHotPostList(@RequestParam int page){
-        Pageable pageable = PageRequest.of(page-1,PAGE_SIZE);
-
-        Page<Post> postList = postService.getHotPostList(pageable);
-        PageMetadata pageMetadata = new PageMetadata(postList.getSize(), postList.getNumber(), postList.getTotalElements());
-        PagedModel<Post> body = PagedModel.of(postList.getContent(),pageMetadata);
-
-        body.add(linkTo(methodOn(PostController.class).getHotPostList(page)).withSelfRel());
-        return ResponseEntity.ok(body);
     }
 }
