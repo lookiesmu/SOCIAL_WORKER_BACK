@@ -14,6 +14,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -44,9 +45,6 @@ public class User implements UserDetails {
     private String password;
 
     @Column
-    private String role; //권한 관련 찾아보기
-
-    @Column
     private String location; //지역
 
     @Column
@@ -57,16 +55,19 @@ public class User implements UserDetails {
     private int point; //포인트
   
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(value = EnumType.STRING)
+    @JsonIgnore
     @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    private List<UserRole> roles = new ArrayList<>();
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
 //        return this.roles.stream()
 //                .map(SimpleGrantedAuthority::new)
 //                .collect(Collectors.toList());
-        List<GrantedAuthority> auth = new ArrayList<>();
-        auth.add(new SimpleGrantedAuthority(this.getRole()));
+        List<GrantedAuthority> auth = roles.stream().map(userRole -> new SimpleGrantedAuthority(userRole.name()))
+                .collect(Collectors.toList());
         return auth;
     }
 
