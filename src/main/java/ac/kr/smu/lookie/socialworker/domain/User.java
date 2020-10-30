@@ -1,5 +1,7 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -37,11 +40,9 @@ public class User implements UserDetails {
     private String email; //이메일
 
     @Column(length = 300, nullable = false)
+    @JsonIgnore
 //    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-
-    @Column
-    private String role; //권한 관련 찾아보기
 
     @Column
     private String location; //지역
@@ -52,39 +53,51 @@ public class User implements UserDetails {
 
     @Column
     private int point; //포인트
-
-
+  
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(value = EnumType.STRING)
+    @JsonIgnore
     @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    private List<UserRole> roles = new ArrayList<>();
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
 //        return this.roles.stream()
 //                .map(SimpleGrantedAuthority::new)
 //                .collect(Collectors.toList());
-        List<GrantedAuthority> auth = new ArrayList<>();
-        auth.add(new SimpleGrantedAuthority(this.getRole()));
+        List<GrantedAuthority> auth = roles.stream().map(userRole -> new SimpleGrantedAuthority(userRole.name()))
+                .collect(Collectors.toList());
         return auth;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return true;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((User)obj).getId()==this.id;
     }
 }

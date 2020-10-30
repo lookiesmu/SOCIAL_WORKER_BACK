@@ -1,22 +1,20 @@
 package ac.kr.smu.lookie.socialworker.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Table
 @NoArgsConstructor
 @Getter
 @Setter
-public class File {
+public class FileInfo {
 
     @Id
     @Column
@@ -35,12 +33,18 @@ public class File {
     @Column
     private boolean isImage;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn
+    @JsonIgnore
+    private Post post;
+
     @Builder
-    public File(String filename, Date createDate, boolean isImage, String uuid) {
+    public FileInfo(String filename, Date createDate, boolean isImage, String uuid, Post post) {
         this.filename = filename;
         this.isImage = isImage;
         this.createDate = createDate;
         this.uuid = uuid;
+        this.post = post;
     }
 
 }
