@@ -34,16 +34,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment register(Long preCommentId, Comment comment) {
-        comment.setId(commentRepository.save(comment).getId());
-        commentRepository.addRecomment(preCommentId, comment.getId());
+    public Comment register(Comment recomment, Long precommentId) {
+        recomment.setId(commentRepository.save(recomment).getId());
+        commentRepository.addRecomment(recomment.getId(), precommentId);
 
-        return comment;
+        return recomment;
     }
 
     @Override
     public Map<String, Boolean> delete(Long id) {
-        return deleteService.delete(commentRepository,id);
+        return deleteService.delete(commentRepository, id);
     }
 
     @Override

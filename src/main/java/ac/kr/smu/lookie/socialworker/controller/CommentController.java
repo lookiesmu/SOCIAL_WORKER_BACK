@@ -32,20 +32,20 @@ public class CommentController {
         return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{preCommmnetId}")
+    @PostMapping("/{precommmnetId}")
     public ResponseEntity<?> postRecomment(@RequestBody Comment comment, @PathVariable("postId") Long postId,
-                                           @PathVariable("preCommentId") Long preCommentId) {
+                                           @PathVariable("precommentId") Long precommentId) {
         comment.setPost(Post.builder().id(postId).build());
 
-        EntityModel<Comment> body = EntityModel.of(commentService.register(preCommentId, comment));
-        body.add(linkTo(methodOn(CommentController.class).postRecomment(comment, postId, preCommentId)).withSelfRel());
+        EntityModel<Comment> body = EntityModel.of(commentService.register(comment, precommentId));
+        body.add(linkTo(methodOn(CommentController.class).postRecomment(comment, postId, precommentId)).withSelfRel());
 
         return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity deleteComment(@PathVariable("commentId") Long commentId, @AuthenticationPrincipal User user) {
-        if(!user.equals(commentService.getComment(commentId).getUser()) || !user.getRoles().contains("ADMIN"))
+        if (!user.equals(commentService.getComment(commentId).getUser()) || !user.getRoles().contains("ADMIN"))
             return ResponseEntity.status(403).build();
 
         return ResponseEntity.ok(commentService.delete(commentId));
