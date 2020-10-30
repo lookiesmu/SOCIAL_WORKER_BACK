@@ -87,6 +87,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<Post> getHotPostList(Pageable pageable) {
-        return postRepository.findByHotIsTrue(pageable);
+        return postRepository.findByHotIsTrueOOrderByModifiedDateDesc(pageable);
     }
 }
